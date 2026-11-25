@@ -1,5 +1,5 @@
 
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {createRoot} from "react-dom/client";
 
 type Side="HOME"|"AWAY";
@@ -322,6 +322,7 @@ function App(){
  const [server,setServer]=useState<Side>("HOME"),[rot,setRot]=useState({home:1,away:1});
  const [firstServers,setFirstServers]=useState<Record<number,Side>>({1:"HOME",2:"HOME",3:"HOME",4:"HOME",5:"HOME"});
  const [selected,setSelected]=useState<number|null>(null),[skill,setSkill]=useState<Skill|null>(null),[quickSkill,setQuickSkill]=useState<Skill|null>(null);
+ const lastCourtTap=useRef<{key:string;time:number}|null>(null);
  const [rallies,setRallies]=useState<Rally[]>([]),[open,setOpen]=useState<Rally|null>(null);
  const [rallyCode,setRallyCode]=useState("");
  const [codeStatus,setCodeStatus]=useState<{type:"ok"|"err";text:string}|null>(null);
@@ -504,6 +505,10 @@ function App(){
    setQuickSkill(null);
    return;
   }
+  // Dua ketukan pada kotak pemain di HP maupun desktop membuka pergantian pemain.
+  const tapKey=`${team}-${posNo}`;const now=Date.now();const previous=lastCourtTap.current;
+  if(previous&&previous.key===tapKey&&now-previous.time<520){lastCourtTap.current=null;setSelected(null);setQuickSkill(null);substituteByDoubleClick(team,posNo);return;}
+  lastCourtTap.current={key:tapKey,time:now};
   setSide(team);setSelected(p.id);setQuickSkill(null);
  }
  useEffect(()=>{
@@ -949,9 +954,9 @@ function App(){
     {livePanelOpen&&<div className="liveSidePanel"><div className="liveSidePanelHead"><b>LIVE RALLY HISTORY</b><span>{rallies.length} rally selesai</span></div>{rallies.length?rallies.slice(-8).reverse().map(r=><div className="liveHistoryRow" key={r.id}><b>RALLY {r.id} • {r.winner}</b><small>{r.actions.map(a=>`${a.side} #${a.player?.number} ${a.skill}: ${a.result}`).join(" → ")}</small><span>{r.after?.home} : {r.after?.away}</span></div>):<div className="liveHistoryEmpty">Belum ada rally selesai.</div>}<div className="liveSidePanelHead"><b>LIVE MATCH STATS</b><span>berdasarkan rally tersimpan</span></div><div className="liveStatsTeams">{(["HOME","AWAY"] as Side[]).map(t=>{const acts=rallies.flatMap(r=>r.actions).filter(a=>a.side===t);const count=(skill:Skill,result?:string)=>acts.filter(a=>a.skill===skill&&(!result||a.result===result)).length;return <div className="liveStatsTeam" key={t}><b>{t==="HOME"?match.homeName:match.awayName}</b><span>Attack {count("Attack")} • Kill {count("Attack","Kill")} • Error {count("Attack","Error")}</span><span>Ace {count("Serve","Ace")} • Block Kill {count("Block","Block Kill")}</span><span>Receive {count("Reception")} • Dig {count("Dig")}</span></div>})}</div></div>}
    </section>}
    <section className={`panel courtPanel ${scoutingView==="LIVE"?"courtPanelLive":""}`}><div className="ph"><div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}><span>{scoutingView==="LIVE"?`LIVE SCOUTING • ${match.homeName} vs ${match.awayName} • HOME R${rot.home} / AWAY R${rot.away} • SERVER ${server==="HOME"?match.homeName:match.awayName}`:"FULL COURT • ROTASI HOME R"+rot.home+" / AWAY R"+rot.away+" • SERVER "+server}</span><div className="courtZoomTools"><button type="button" onClick={()=>setCourtZoom(z=>Math.max(80,z-5))} title="Perkecil lapangan">−</button><b>{courtZoom}%</b><button type="button" onClick={()=>setCourtZoom(z=>Math.min(115,z+5))} title="Perbesar lapangan">＋</button><button type="button" onClick={()=>setCourtZoom(100)} title="Reset ukuran lapangan">⟲</button></div></div><div style={{display:"flex",alignItems:"center",gap:10}}><b>{pendingLibero?`LIBERO DIPILIH: klik pemain belakang P1, P5, atau P6 tim ${pendingLibero.team} untuk menggantinya`:(selected?`Pilih aksi untuk ${player.number} ${player.name}`:"Klik pemain untuk memilih aksi")}</b>{scoutingView==="LIVE"&&<button type="button" className="btn" onClick={()=>{setScoutingView("VIDEO");setSelected(null);setQuickSkill(null)}}>▶ KEMBALI KE VIDEO SCOUTING</button>}</div></div>   
-{scoutingView==="VIDEO"&&<VideoAnalysisPanel/>}<div className={`courtBox ${scoutingView==="LIVE"&&scoutingPaused?"scoutingPaused":""}`}>{scoutingView==="LIVE"&&scoutingPaused&&<div className="scoutingPauseBanner">⏸ SCOUTING DIJEDA — TEKAN LANJUTKAN SCOUTING UNTUK MENERUSKAN</div>}<div className={`liberoCourtLayout ${scoutingView==="LIVE"&&sidesSwapped?"sidesSwapped":""}`}><div className="liberoRail awayLiberoRail">{[0,1].map(i=>{const raw=awayLiberoNumbers[i];const libero=awayPlayers.find(x=>x.number===Number(raw)&&x.role==="L");const backup=liberoBackup.away;const p=backup&&i===0?awayPlayers.find(x=>x.id===backup):libero;const active=!!backup&&i===0;return <button type="button" key={i} className={`liberoCourtSlot awayLiberoSlot ${p?"hasLibero":""} ${active?"liberoReturning":""}`} onClick={()=>clickLiberoSlot("AWAY",i)} title={active?"Klik untuk mengembalikan pemain belakang ke lapangan":"Klik, lalu pilih pemain belakang"}><span>{active?"PEMAIN KELUAR":`LIBERO ${i+1}`}</span><strong>{p?p.number:"—"}</strong><b>{p?p.name:"Belum diisi"}</b><small>{active?"KLIK UNTUK KEMBALI":p?"KLIK UNTUK MASUK":"SLOT LIBERO"}</small></button>})}</div><div className="proCourt" style={{transform:`scale(${courtZoom/100})`,transformOrigin:"center center"}}><div className="netLine"><span>NET</span></div>{match.scoutingMode!=="HOME"&&awayCourt.map((p,i)=><CourtPlayer key={p.id} p={p} pos={i+1} selected={side==="AWAY"&&p.id===selected} team="AWAY" server={server} editing={editingCourtSlot?.team==="AWAY"&&editingCourtSlot.pos===i+1} editValue={editingCourtSlot?.team==="AWAY"&&editingCourtSlot.pos===i+1?editingCourtSlot.value:""} onEditChange={v=>setEditingCourtSlot(x=>x?{...x,value:v}:x)} onEditCommit={commitCourtNumberEdit} onEditCancel={()=>setEditingCourtSlot(null)} onClick={()=>handleCourtPlayerClick("AWAY",i+1,p)} onDoubleClick={()=>substituteByDoubleClick("AWAY",i+1)}/>)}{match.scoutingMode!=="AWAY"&&homeCourt.map((p,i)=><CourtPlayer key={p.id} p={p} pos={i+1} selected={side==="HOME"&&p.id===selected} team="HOME" server={server} editing={editingCourtSlot?.team==="HOME"&&editingCourtSlot.pos===i+1} editValue={editingCourtSlot?.team==="HOME"&&editingCourtSlot.pos===i+1?editingCourtSlot.value:""} onEditChange={v=>setEditingCourtSlot(x=>x?{...x,value:v}:x)} onEditCommit={commitCourtNumberEdit} onEditCancel={()=>setEditingCourtSlot(null)} onClick={()=>handleCourtPlayerClick("HOME",i+1,p)} onDoubleClick={()=>substituteByDoubleClick("HOME",i+1)}/> )}
+{scoutingView==="VIDEO"&&<VideoAnalysisPanel/>}<div className={`courtBox ${scoutingView==="LIVE"&&scoutingPaused?"scoutingPaused":""}`}>{scoutingView==="LIVE"&&scoutingPaused&&<div className="scoutingPauseBanner">⏸ SCOUTING DIJEDA — TEKAN LANJUTKAN SCOUTING UNTUK MENERUSKAN</div>}<div className={`liberoCourtLayout ${scoutingView==="LIVE"&&sidesSwapped?"sidesSwapped":""}`}><div className="liberoRail awayLiberoRail">{[0,1].map(i=>{const raw=awayLiberoNumbers[i];const libero=awayPlayers.find(x=>x.number===Number(raw)&&x.role==="L");const backup=liberoBackup.away;const p=backup&&i===0?awayPlayers.find(x=>x.id===backup):libero;const active=!!backup&&i===0;return <button type="button" key={i} className={`liberoCourtSlot awayLiberoSlot ${p?"hasLibero":""} ${active?"liberoReturning":""}`} onClick={()=>clickLiberoSlot("AWAY",i)} title={active?"Klik untuk mengembalikan pemain belakang ke lapangan":"Klik, lalu pilih pemain belakang"}><span>{active?"PEMAIN KELUAR":`LIBERO ${i+1}`}</span><strong>{p?p.number:"—"}</strong><b>{p?p.name:"Belum diisi"}</b><small>{active?"KLIK UNTUK KEMBALI":p?"KLIK UNTUK MASUK":"SLOT LIBERO"}</small></button>})}</div><div className="proCourt" style={{transform:`scale(${courtZoom/100})`,transformOrigin:"center center"}}><div className="netLine"><span>NET</span></div>{match.scoutingMode!=="HOME"&&awayCourt.map((p,i)=><CourtPlayer key={p.id} p={p} pos={i+1} selected={side==="AWAY"&&p.id===selected} team="AWAY" server={server} editing={editingCourtSlot?.team==="AWAY"&&editingCourtSlot.pos===i+1} editValue={editingCourtSlot?.team==="AWAY"&&editingCourtSlot.pos===i+1?editingCourtSlot.value:""} onEditChange={v=>setEditingCourtSlot(x=>x?{...x,value:v}:x)} onEditCommit={commitCourtNumberEdit} onEditCancel={()=>setEditingCourtSlot(null)} onClick={()=>handleCourtPlayerClick("AWAY",i+1,p)}/>)}{match.scoutingMode!=="AWAY"&&homeCourt.map((p,i)=><CourtPlayer key={p.id} p={p} pos={i+1} selected={side==="HOME"&&p.id===selected} team="HOME" server={server} editing={editingCourtSlot?.team==="HOME"&&editingCourtSlot.pos===i+1} editValue={editingCourtSlot?.team==="HOME"&&editingCourtSlot.pos===i+1?editingCourtSlot.value:""} onEditChange={v=>setEditingCourtSlot(x=>x?{...x,value:v}:x)} onEditCommit={commitCourtNumberEdit} onEditCancel={()=>setEditingCourtSlot(null)} onClick={()=>handleCourtPlayerClick("HOME",i+1,p)}/> )}
 {selected&&player&&<div className="playerActionPopover" style={{top:(side==="AWAY"?(pos===1||pos===5||pos===6):(pos===2||pos===3||pos===4))?"8%":"58%",[side==="HOME"?"right":"left"]:"2%"}}>
- <div className="playerActionHead"><b>#{player.number} {player.name}</b><button type="button" onClick={()=>{setSelected(null);setQuickSkill(null)}}>×</button></div>
+ <div className="playerActionHead"><b>#{player.number} {player.name}</b><button type="button" aria-label="Batalkan pilihan pemain" title="Batalkan pilihan pemain" onClick={()=>{setSelected(null);setQuickSkill(null);lastCourtTap.current=null}}>×</button></div>
  {!quickSkill&&<div className="playerActionSkills">{(["Serve","Reception","Attack","Block","Dig","Set"] as Skill[]).map(s=><button type="button" className={`skill category-${s.toLowerCase()}`} key={s} onClick={()=>openSkill(s)}><strong>{{Attack:"ATTACK",Serve:"🏐 SERVICE",Reception:"RECEIVE",Set:"SET",Block:"BLOCK",Dig:"DIG"}[s]}</strong><small>{{Attack:"Serangan",Serve:"Servis",Reception:"Penerimaan servis",Set:"Umpan",Block:"Blok",Dig:"Pertahanan"}[s]}</small></button>)}</div>}
  {quickSkill&&<div className="quickResults"><div className="quickTitle">PILIH HASIL AKSI • {{Attack:"ATTACK / SERANGAN",Serve:"SERVICE / SERVIS",Reception:"RECEIVE / TERIMA SERVIS",Set:"SET / UMPAN",Block:"BLOCK / BLOK",Dig:"DIG / PERTAHANAN",Cover:"COVER", "Free Ball":"FREE BALL"}[quickSkill]}</div><div className="resultBtns">{cfg[quickSkill].results.map((r:string)=>{const positive=["Kill","Ace","Block Kill","Positive (+)","Perfect (3)","Good (2)","Good","Touch","Control"].includes(r);const negative=["Error","Blocked","Error (0)"].includes(r);const warning=["Poor (1)","Poor"].includes(r);return <button type="button" key={r} className={`result ${positive?"good":negative?"bad":warning?"warn":"neutral"}`} onClick={()=>recordQuickResult(r)}>{r.replace(" (+)","").replace(" (#)","")}</button>})}</div><button type="button" className="detailLink backCategory" onClick={()=>setQuickSkill(null)}>← KEMBALI KE KATEGORI</button><button type="button" className="detailLink" onClick={()=>{setSkill(quickSkill);setQuickSkill(null)}}>＋ DETAIL LENGKAP</button></div>}
  </div>}
@@ -4111,3 +4116,38 @@ const avsMobileCompact = document.createElement("style");
 `;
 document.head.appendChild(avsMobileCompact);
 
+
+
+/* AVS MOBILE COURT ACTION + SCORE REFINEMENT */
+const avsMobileCourtRefine = document.createElement("style");
+avsMobileCourtRefine.textContent = `
+@media(max-width:760px){
+ .courtPanel .playerActionPopover{position:relative!important;inset:auto!important;transform:none!important;width:100%!important;max-width:100%!important;max-height:none!important;margin:6px 0 0!important;padding:7px!important;border-radius:9px!important;box-shadow:0 5px 16px #0006!important}
+ .courtPanel .playerActionHead{font-size:10px!important;margin:0 0 6px!important;min-height:28px!important}
+ .courtPanel .playerActionHead button{width:32px!important;height:30px!important;min-width:32px!important;font-size:20px!important;display:grid!important;place-items:center!important;touch-action:manipulation!important}
+ .courtPanel .playerActionSkills{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}
+ .courtPanel .playerActionSkills .skill{min-width:0!important;min-height:36px!important;padding:5px 3px!important;border-radius:7px!important;font-size:8px!important;line-height:1.1!important}
+ .courtPanel .playerActionSkills .skill strong{font-size:9px!important;display:block!important}
+ .courtPanel .playerActionSkills .skill small{font-size:7px!important;display:block!important;margin-top:2px!important}
+ .courtPanel .quickResults{margin-top:5px!important;padding-top:5px!important}
+ .courtPanel .quickTitle{font-size:8px!important;line-height:1.25!important}
+ .courtPanel .resultBtns{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important}
+ .courtPanel .resultBtns .result{min-height:34px!important;padding:5px 3px!important;font-size:8px!important}
+ .courtPanel .detailLink{min-height:30px!important;padding:5px 7px!important;font-size:8px!important}
+ .score{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:5px!important;padding:6px 7px!important;margin:0 0 6px!important;border-radius:8px!important}
+ .score .tm{grid-template-columns:minmax(0,1fr) auto!important;gap:3px!important;min-width:0!important}
+ .score .tm span{font-size:7px!important;line-height:1.1!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+ .score .tm b{font-size:8px!important;line-height:1.1!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+ .score .tm strong{font-size:18px!important;line-height:1!important}
+ .score .mid{display:none!important}
+ .courtPanel .courtPlayer{min-height:36px!important}
+}
+@media(max-width:380px){
+ .courtPanel .playerActionSkills{gap:4px!important}
+ .courtPanel .playerActionSkills .skill{min-height:34px!important;font-size:7px!important}
+ .courtPanel .playerActionSkills .skill strong{font-size:8px!important}
+ .score{padding:5px 6px!important}
+ .score .tm strong{font-size:16px!important}
+}
+`;
+document.head.appendChild(avsMobileCourtRefine);
