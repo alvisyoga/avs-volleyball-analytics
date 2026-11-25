@@ -9,7 +9,7 @@ type Action={id:number;side:Side;player:Player;pos:number;rot:number;skill:Skill
 type Rally={id:number;set:number;actions:Action[];winner?:Side;pointReason?:string;before:{home:number;away:number};after?:{home:number;away:number};beforeServer?:Side;beforeRot?:{home:number;away:number};beforeHomeCourt?:Player[];beforeAwayCourt?:Player[]};
 type ScoutMode="BOTH"|"HOME"|"AWAY";
 type MatchConfig={homeName:string;awayName:string;competition:string;date:string;venue:string;referee:string;bestOf:number;scoutingMode:ScoutMode};
-type SubEvent={id:number;team:Side;type:"SUBSTITUTION"|"LIBERO IN"|"LIBERO OUT";pos:number;outPlayer?:Player;inPlayer?:Player};
+type SubEvent={id:number;team:Side;type:"SUBSTITUTION"|"LIBERO IN"|"LIBERO OUT"|"LIBERO OUT — AUTO ROTASI";pos:number;outPlayer?:Player;inPlayer?:Player};
 
 const home:Player[]=[
 {id:4,number:4,name:"Raka",role:"OH"},{id:5,number:5,name:"Fajar",role:"S"},
@@ -988,6 +988,11 @@ function App(){
 }
 
 
+function downloadText(filename:string, content:string){
+ const blob=new Blob([content],{type:"text/plain;charset=utf-8"});
+ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
 function VideoAnalysisPanel(){
  const [url,setUrl]=useState(()=>localStorage.getItem("vscout-video-url")||"");
  const [activeUrl,setActiveUrl]=useState(()=>localStorage.getItem("vscout-video-url")||"");
@@ -1058,7 +1063,7 @@ function downloadCSV(filename:string, rows:string[][]){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);
 }
 
-function Simple({page,score,stats,rallies,setScores,setNo,match,homePlayers,awayPlayers,setMatch,setHomePlayers,setAwayPlayers,homeLineup,awayLineup,homeLibero,awayLibero,setHomeLineup,setAwayLineup,setHomeLibero,setAwayLibero,onLive}:{page:string;score:any;stats:any;rallies:any[];setScores:{set:number;home:number;away:number}[];setNo:number;match:MatchConfig;homePlayers:Player[];awayPlayers:Player[];setMatch:(x:MatchConfig)=>void;setHomePlayers:React.Dispatch<React.SetStateAction<Player[]>>;setAwayPlayers:React.Dispatch<React.SetStateAction<Player[]>>;homeLineup:Player[];awayLineup:Player[];homeLibero:number|null;awayLibero:number|null;setHomeLineup:React.Dispatch<React.SetStateAction<Player[]>>;setAwayLineup:React.Dispatch<React.SetStateAction<Player[]>>;setHomeLibero:React.Dispatch<React.SetStateAction<number|null>>;setAwayLibero:React.Dispatch<React.SetStateAction<number|null>>;onLive:()=>void;onSetupDone:()=>void}){
+function Simple({page,score,stats,rallies,setScores,players,setNo,match,homePlayers,awayPlayers,setMatch,setHomePlayers,setAwayPlayers,homeLineup,awayLineup,homeLibero,awayLibero,setHomeLineup,setAwayLineup,setHomeLibero,setAwayLibero,onLive,onSetupDone}:{page:string;score:any;stats:any;rallies:any[];setScores:{set:number;home:number;away:number}[];players:any[];setNo:number;match:MatchConfig;homePlayers:Player[];awayPlayers:Player[];setMatch:(x:MatchConfig)=>void;setHomePlayers:React.Dispatch<React.SetStateAction<Player[]>>;setAwayPlayers:React.Dispatch<React.SetStateAction<Player[]>>;homeLineup:Player[];awayLineup:Player[];homeLibero:number|null;awayLibero:number|null;setHomeLineup:React.Dispatch<React.SetStateAction<Player[]>>;setAwayLineup:React.Dispatch<React.SetStateAction<Player[]>>;setHomeLibero:React.Dispatch<React.SetStateAction<number|null>>;setAwayLibero:React.Dispatch<React.SetStateAction<number|null>>;onLive:()=>void;onSetupDone:()=>void}){
   const [tab,setTab]=useState("OVERVIEW");
   const [setFilter,setSetFilter]=useState("ALL");
   const [sideFilter,setSideFilter]=useState<Side>("HOME");
