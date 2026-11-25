@@ -4179,3 +4179,56 @@ avsMobileCourtRefine.textContent = `
 }
 `;
 document.head.appendChild(avsMobileCourtRefine);
+
+/* AVS SCORE DOCK — compact score, set, service, timeout and match controls. */
+const avsCompactScoreDockStyle=document.createElement("style");
+avsCompactScoreDockStyle.textContent=`
+/* Keep the whole scoring panel visually lighter without changing any actions. */
+.liveDock{padding:5px 9px!important}
+.dockScore{gap:9px!important;padding:2px 8px!important;margin:0 auto 3px!important;align-items:center!important}
+.dockTeam{gap:6px!important}
+.dockTeam span{font-size:9px!important;line-height:1.15!important}
+.dockTeam strong{font-size:clamp(21px,2.4vw,30px)!important;min-width:27px!important}
+.dockMid{gap:2px!important}
+.dockMid b{font-size:11px!important;padding:2px 6px!important}
+.dockMid span{font-size:8px!important;line-height:1.15!important}
+.liveServerPicker{display:flex!important;gap:4px!important;margin-top:2px!important}
+.liveServerPicker button{min-height:25px!important;padding:4px 7px!important;font-size:8px!important;border-radius:6px!important}
+.dockMid .undoDock{min-height:25px!important;padding:4px 8px!important;font-size:8px!important;margin-top:2px!important}
+.dockToolbar{gap:5px!important;padding:4px 5px!important;margin:2px auto 0!important;align-items:center!important}
+.dockToolbar .btn{min-height:29px!important;padding:5px 8px!important;font-size:8px!important;line-height:1.1!important;border-radius:7px!important}
+.dockToolbar .avsSwapSideControl{min-height:29px!important;padding:5px 8px!important;border-width:1px!important;font-size:8px!important}
+.dockToolbar .seg{gap:3px!important;padding:2px!important}
+.dockToolbar .seg button{min-height:25px!important;padding:4px 8px!important;font-size:8px!important}
+.dockToolbar label{font-size:8px!important;gap:3px!important;line-height:1.1!important}
+.dockToolbar select{min-height:25px!important;padding:3px 5px!important;font-size:8px!important;max-width:120px!important}
+@media(max-width:760px){
+ .liveDock{padding:3px 5px max(4px,env(safe-area-inset-bottom))!important}
+ .dockScore{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;gap:4px!important;padding:1px 3px!important;margin-bottom:2px!important}
+ .dockTeam{gap:3px!important;min-width:0!important}
+ .dockTeam span{font-size:7px!important;line-height:1.1!important;max-width:100%;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+ .dockTeam strong{font-size:19px!important;min-width:20px!important;line-height:1!important}
+ .dockMid{gap:1px!important;min-width:0!important}
+ .dockMid b{font-size:9px!important;padding:2px 5px!important;line-height:1.1!important}
+ .dockMid span{font-size:6.5px!important;line-height:1.1!important;max-width:110px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+ .liveServerPicker{gap:3px!important;margin-top:2px!important}
+ .liveServerPicker button{min-height:22px!important;height:22px!important;padding:3px 5px!important;font-size:6.5px!important;line-height:1!important;border-radius:5px!important}
+ .dockMid .undoDock{min-height:22px!important;height:22px!important;padding:3px 6px!important;font-size:6.5px!important;line-height:1!important;margin-top:2px!important}
+ .dockToolbar{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;overflow:visible!important;gap:3px!important;padding:3px 1px!important;margin-top:2px!important}
+ .dockToolbar .btn,.dockToolbar .avsSwapSideControl{flex:0 0 auto!important;min-height:24px!important;height:24px!important;padding:3px 6px!important;font-size:6.5px!important;line-height:1!important;border-radius:5px!important;letter-spacing:0!important}
+ .dockToolbar .seg{padding:1px!important;gap:2px!important}
+ .dockToolbar .seg button{min-height:22px!important;height:22px!important;padding:3px 6px!important;font-size:6.5px!important;line-height:1!important}
+ .dockToolbar label{display:flex!important;align-items:center!important;gap:2px!important;font-size:6.5px!important;white-space:nowrap!important}
+ .dockToolbar select{min-height:22px!important;height:22px!important;max-width:94px!important;padding:2px 4px!important;font-size:6.5px!important;border-radius:5px!important}
+}
+@media(max-width:380px){
+ .dockScore{gap:2px!important}
+ .dockTeam span{font-size:6px!important}
+ .dockTeam strong{font-size:17px!important}
+ .dockMid span{font-size:6px!important;max-width:92px!important}
+ .liveServerPicker button{font-size:6px!important;padding:3px 4px!important}
+ .dockToolbar{gap:2px!important}
+ .dockToolbar .btn,.dockToolbar .avsSwapSideControl{padding:3px 5px!important;font-size:6px!important}
+}
+`;
+document.head.appendChild(avsCompactScoreDockStyle);
