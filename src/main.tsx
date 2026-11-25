@@ -4149,5 +4149,33 @@ avsMobileCourtRefine.textContent = `
  .score{padding:5px 6px!important}
  .score .tm strong{font-size:16px!important}
 }
+/* AVS mobile action panel: comfortably sized, all six actions visible in one card */
+@media(max-width:760px){
+ .courtPanel .playerActionPopover{
+  width:min(278px,calc(100vw - 28px))!important;
+  max-width:calc(100vw - 28px)!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding:9px!important;
+  border-radius:11px!important;
+ }
+ .courtPanel .playerActionHead{font-size:11px!important;margin:0 0 8px!important;min-height:32px!important}
+ .courtPanel .playerActionHead button{width:34px!important;height:32px!important;min-width:34px!important;font-size:21px!important}
+ .courtPanel .playerActionSkills{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ .courtPanel .playerActionSkills .skill{
+  min-height:52px!important;height:52px!important;padding:6px 4px!important;
+  font-size:10px!important;line-height:1.15!important;border-radius:8px!important;
+  display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;
+ }
+ .courtPanel .playerActionSkills .skill strong{font-size:10px!important;line-height:1.15!important}
+ .courtPanel .playerActionSkills .skill small{font-size:8px!important;line-height:1.15!important;margin-top:3px!important}
+}
+@media(max-width:380px){
+ .courtPanel .playerActionPopover{width:min(264px,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important;padding:8px!important}
+ .courtPanel .playerActionSkills{gap:6px!important}
+ .courtPanel .playerActionSkills .skill{min-height:49px!important;height:49px!important;font-size:9px!important}
+ .courtPanel .playerActionSkills .skill strong{font-size:9px!important}
+ .courtPanel .playerActionSkills .skill small{font-size:7.5px!important}
+}
 `;
 document.head.appendChild(avsMobileCourtRefine);
