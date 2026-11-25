@@ -4009,3 +4009,105 @@ body.light-mode .liveStatsPanel .stat b{color:#176f9e!important}
 `;
 document.head.appendChild(avsMinimalPremiumFinish);
 
+/* AVS MOBILE-FIRST COMPACT LAYOUT — responsive presentation only; preserves scouting logic and panel order */
+const avsMobileCompact = document.createElement("style");
+ avsMobileCompact.textContent = `
+@media (max-width: 760px) {
+  html,body,#root { width:100%; min-width:0; overflow-x:hidden; }
+  body { -webkit-text-size-adjust:100%; }
+  .app { display:block!important; min-height:100dvh!important; width:100%!important; overflow-x:clip!important; }
+  /* Compact, horizontally scrollable navigation instead of a tall sidebar */
+  .side { position:sticky!important; inset:0 0 auto 0!important; z-index:30!important; width:100%!important; height:auto!important; max-height:116px!important; padding:6px 8px 7px!important; margin:0!important; display:flex!important; flex-wrap:wrap!important; align-items:center!important; gap:4px!important; overflow-x:auto!important; overflow-y:auto!important; white-space:normal!important; border-right:0!important; border-bottom:1px solid #29445c!important; box-shadow:0 5px 16px #0002!important; }
+  .brand { flex:0 0 100%!important; width:100%!important; display:flex!important; gap:7px!important; align-items:center!important; padding:0 4px 3px!important; }
+  .brand .logo { width:27px!important; height:27px!important; min-width:27px!important; border-radius:8px!important; font-size:13px!important; }
+  .brand b { font-size:10px!important; line-height:1.1!important; }
+  .brand small { display:block!important; font-size:7px!important; letter-spacing:1px!important; }
+  .side .nav { display:inline-flex!important; flex:0 0 auto!important; width:auto!important; min-height:30px!important; height:30px!important; align-items:center!important; padding:5px 9px!important; margin:0!important; border-radius:7px!important; font-size:9px!important; line-height:1!important; white-space:nowrap!important; }
+  .side .nav::before { display:none!important; }
+  .side .bottom { display:none!important; }
+  .main { margin:0!important; width:100%!important; max-width:100%!important; padding:10px 9px 185px!important; min-width:0!important; }
+  .head { align-items:flex-start!important; gap:7px!important; flex-wrap:wrap!important; margin:0 0 9px!important; }
+  .head h1 { font-size:18px!important; line-height:1.15!important; margin:2px 0!important; }
+  .ey { font-size:7px!important; letter-spacing:.8px!important; }
+  .actions { width:100%!important; display:flex!important; flex-wrap:nowrap!important; gap:5px!important; overflow-x:auto!important; padding:1px 0 4px!important; }
+  .actions .btn,.actions label { flex:0 0 auto!important; min-height:32px!important; padding:6px 8px!important; font-size:9px!important; }
+  .score { grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important; gap:6px!important; padding:8px!important; margin-bottom:7px!important; }
+  .score .mid { display:none!important; }
+  .tm { grid-template-columns:1fr auto!important; gap:4px!important; min-width:0!important; }
+  .tm span { font-size:8px!important; overflow:hidden!important; text-overflow:ellipsis!important; }
+  .tm strong { font-size:20px!important; }
+  .toolbar { padding:7px!important; gap:5px!important; margin-bottom:7px!important; }
+  .panel,.card,.wide,.toolbar,.metric,.hero,.score,.videoScout,.liveStatsPanel { border-radius:9px!important; }
+  .panel,.card,.wide { min-width:0!important; }
+  .ph { padding:8px 10px!important; font-size:9px!important; }
+  .sectionTitle { gap:6px!important; margin-bottom:8px!important; }
+  .sectionTitle h3,.sectionTitle h4 { font-size:11px!important; }
+  .hero { padding:11px!important; }
+  .hero h2 { font-size:17px!important; }
+  .metrics { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:6px!important; }
+  .metric { padding:8px!important; min-width:0!important; }
+  .metric b,.stat b { font-size:17px!important; }
+  .grid,.grid2,.teamGrid,.setupGrid,.dashGrid,.tacGrid,.analyticsGrid,.perfGrid,.compareGrid,.replayGrid,.rotationGridPro,.lineupGrid,.lineupSummary { grid-template-columns:minmax(0,1fr)!important; gap:7px!important; }
+  .starterGrid,.liberoBox { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:6px!important; }
+  .rosterEdit { grid-template-columns:52px minmax(0,1fr) 65px!important; gap:5px!important; }
+  .btn,.result,.skill,.choice,.filterPill,.seg button,.quick button,.videoTransport button { min-height:38px!important; padding:7px 9px!important; font-size:10px!important; border-radius:7px!important; }
+  input,select,textarea { min-height:38px!important; max-width:100%!important; font-size:16px!important; padding:7px 8px!important; }
+  .skills { grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:5px!important; padding:7px!important; }
+  .skill { min-height:42px!important; padding:6px 3px!important; font-size:9px!important; }
+  .quick { grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:5px!important; padding:7px!important; }
+  .quick button { min-height:38px!important; padding:6px 3px!important; font-size:9px!important; }
+  .quickCodeArea .codeInputRow { display:grid!important; grid-template-columns:minmax(0,1fr) auto!important; gap:5px!important; }
+  .quickCodeArea .codeInputRow .btn { width:auto!important; }
+  .courtPanel { display:flex!important; flex-direction:column!important; gap:7px!important; }
+  .courtPanel>.ph,.courtPanel>.videoScout,.courtPanel>.courtBox,.courtPanel>.actionPicker,.courtPanel>.rotationGuide { width:100%!important; max-width:100%!important; margin:0!important; }
+  .courtPanel .courtBox { padding:7px 3px!important; overflow:hidden!important; }
+  .courtPanel .liberoCourtLayout { width:100%!important; max-width:100%!important; grid-template-columns:30px minmax(0,1fr) 30px!important; gap:2px!important; }
+  .courtPanel .proCourt { width:100%!important; min-width:0!important; max-width:100%!important; aspect-ratio:10/13!important; padding:6px 3px!important; }
+  .courtPanel .courtPlayer { width:clamp(38px,14vw,54px)!important; min-height:38px!important; padding:3px 1px!important; }
+  .courtPanel .courtPlayer strong { font-size:13px!important; }
+  .courtPanel .courtPlayer b { font-size:6px!important; }
+  .courtPanel .courtPlayer small { font-size:6px!important; }
+  .courtPanel>.actionPicker { padding:7px!important; }
+  .courtPanel>.actionPicker .skills { grid-template-columns:repeat(3,minmax(0,1fr))!important; }
+  .videoScout { padding:8px!important; }
+  .videoScout .videoFrame { width:100%!important; aspect-ratio:16/9!important; min-height:0!important; }
+  .videoTransport { display:flex!important; flex-wrap:wrap!important; gap:4px!important; }
+  .videoTransport button { min-width:38px!important; }
+  .liveDock { left:0!important; right:0!important; bottom:0!important; width:100%!important; padding:5px 7px max(6px,env(safe-area-inset-bottom))!important; z-index:40!important; }
+  .dockScore { gap:4px!important; }
+  .dockTeam span { font-size:8px!important; }
+  .dockTeam strong { font-size:18px!important; }
+  .dockMid { gap:3px!important; }
+  .dockMid span { font-size:7px!important; }
+  .dockMid b { font-size:10px!important; padding:3px 5px!important; }
+  .dockToolbar { flex-wrap:nowrap!important; overflow-x:auto!important; justify-content:flex-start!important; gap:4px!important; }
+  .dockToolbar .btn { flex:0 0 auto!important; min-height:30px!important; padding:5px 7px!important; font-size:8px!important; }
+  .statTable,.tacTable,.tableWrap,.rosterTable,.scrollTable { max-width:100%!important; overflow-x:auto!important; -webkit-overflow-scrolling:touch!important; }
+  .statTable .tr,.tacTable .tr,.tr { min-width:720px!important; }
+  .overlay { padding:8px!important; }
+  .modal { width:100%!important; max-width:100%!important; max-height:94dvh!important; border-radius:10px!important; }
+  .modal .mh { padding:9px!important; }
+  .replayList { max-height:260px!important; }
+  .subBar { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:5px!important; padding:7px!important; }
+  .subBar>div:first-child { grid-column:1/-1!important; }
+  .tacKpi,.replayKpi { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:5px!important; }
+  .compareMetric { grid-template-columns:70px minmax(0,1fr) 34px!important; gap:5px!important; }
+}
+@media (max-width:380px) {
+  .main { padding-left:7px!important; padding-right:7px!important; }
+  .side { max-height:108px!important; }
+  .side .nav { min-height:28px!important; height:28px!important; padding:4px 7px!important; font-size:8px!important; }
+  .head h1 { font-size:16px!important; }
+  .metrics { gap:5px!important; }
+  .courtPanel .liberoCourtLayout { grid-template-columns:25px minmax(0,1fr) 25px!important; }
+  .courtPanel .courtPlayer { width:38px!important; }
+  .skills { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+}
+@media (min-width:761px) and (max-width:1050px) {
+  .side { width:180px!important; }
+  .main { margin-left:180px!important; width:calc(100% - 180px)!important; padding:14px!important; }
+  .courtPanel { grid-template-columns:minmax(0,1fr)!important; }
+}
+`;
+document.head.appendChild(avsMobileCompact);
+
